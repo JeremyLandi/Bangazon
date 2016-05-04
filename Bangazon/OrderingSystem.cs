@@ -26,6 +26,7 @@ namespace Bangazon
             //we need the while loop to keep the menu going
             while (run)
             {
+                Console.Clear();
                 Console.WriteLine("\n*********************************************************" +
                       "\n*​*Welcome to Bangazon!Command Line Ordering System *​*" +
                       "\n*********************************************************" +
@@ -67,7 +68,7 @@ namespace Bangazon
         public void CreateAccount()
         {
             Customer customer = new Customer();
-        
+
             Console.WriteLine("Enter Customer First Name");
             customer.FirstName = Console.ReadLine();
             Console.WriteLine("Enter Customer Last Name");
@@ -86,7 +87,6 @@ namespace Bangazon
             _sqlData.CreateCustomer(customer);
 
             Console.Clear();
-            
         }
 
         // method that gets list of customers from Customer table
@@ -96,7 +96,10 @@ namespace Bangazon
             List<Customer> customerList = _sqlData.GetCustomers();
             for (int i = 0; i < customerList.Count; i++)
             {
-                Console.WriteLine((i + 1) + ". " + customerList[i].FirstName + " " + customerList[i].LastName);
+                Console.WriteLine(
+                    (i + 1) + ". " +
+                    customerList[i].FirstName + " " +
+                    customerList[i].LastName);
             }
 
             string chosenCustomer = Console.ReadLine();
@@ -113,7 +116,6 @@ namespace Bangazon
         public void CreatePaymentOption()
         {
             Console.WriteLine("Which customer would you like to create a payment option for?");
-            //gets list of customers and then based on selection, returns customer
             Customer customer = ChooseCustomer();
             CustomerProducts customerProducts = GetCustomerProducts(customer);
             PaymentOption paymentOption = new PaymentOption();
@@ -127,7 +129,7 @@ namespace Bangazon
             Console.WriteLine("Enter account/C.C number");
             paymentOption.AccountNumber = Console.ReadLine();
 
-                //customerProducts.Payment = paymentOption;
+            customerProducts.Payment = paymentOption;
 
             //call to update database
             _sqlData.CreatePaymentOption(paymentOption);
@@ -145,12 +147,12 @@ namespace Bangazon
                 Console.WriteLine((i + 1) + ". " + productList[i].Name);
             }
             int lastItem = (productList.Count + 1);
-            Console.WriteLine((lastItem) + ". Back to main menu");
+            Console.WriteLine((productList.Count + 1) + ". Back to main menu");
 
             string chosenProduct = Console.ReadLine();
             int chosenProductId = int.Parse(chosenProduct);
             //ensure that somebody can only pick a number inside list
-             
+
             if (chosenProductId >= 0 && chosenProductId <= productList.Count)
             {
                 product = productList[chosenProductId - 1];
@@ -202,7 +204,13 @@ namespace Bangazon
 
             _sqlData.CreateCustomerOrder(customerProducts);
         }
-        
+        public void SeeProductPopularity() { }
+        public void LeaveBangazon()
+        {
+            System.Environment.Exit(0);
+        }
+
+        // if = to null it is optional (i.e. optional peramiters
         private CustomerProducts GetCustomerProducts(Customer customer)
         {
             CustomerProducts customerProducts = null;
@@ -215,28 +223,19 @@ namespace Bangazon
                 }
                 if (customerProducts.Payment == null)
                 {
-                    //Call the method to get the payment option
                     customerProducts.Payment = _sqlData.GetPaymentOptionForCustomer(customer);
                 }
-                if (customerProducts == null)
-                {
-                    customerProducts = new CustomerProducts();
-                    customerProducts.TheCustomer = customer;
-                    _customerProducts.Add(customerProducts);
-                }
             }
-           
+            if (customerProducts == null)
+            {
+                customerProducts = new CustomerProducts();
+                customerProducts.TheCustomer = customer;
+                _customerProducts.Add(customerProducts);
+            }
+
             return customerProducts;
         }
-
-        public void SeeProductPopularity() { }
-
-
-        public void LeaveBangazon()
-        {
-            System.Environment.Exit(0);
-        }
     }
-  }
+}
 
 
