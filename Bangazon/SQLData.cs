@@ -43,6 +43,7 @@ namespace Bangazon
 
             _sqlConnection.Open();
             //using will clean up everything... open and close connections
+            //Read the database. While there is items in database build customer
             using (SqlDataReader dataReader = cmd.ExecuteReader())
             {
                 while (dataReader.Read())
@@ -57,6 +58,7 @@ namespace Bangazon
                     customer.Zipcode = dataReader.GetString(6);
                     customer.PhoneNumber = dataReader.GetString(7);
 
+                    // Add the created customer and adds it to the customerList
                     customerList.Add(customer);
                 }
             }
@@ -78,6 +80,7 @@ namespace Bangazon
 
             SqlCommand cmd = new SqlCommand();
             cmd.CommandType = System.Data.CommandType.Text;
+            //Only access the payment option that matches that customer we have passed in (only getting the first payment option)
             cmd.CommandText = string.Format("SELECT IdPaymentOption, Name, AccountNumber FROM PaymentOption " +
                 "WHERE IdCustomer = '{0}'", customer.IdCustomer);
             cmd.Connection = _sqlConnection;
@@ -89,7 +92,6 @@ namespace Bangazon
                 {
                     if (dataReader.Read())
                     {
-                       
                         paymentOption = new PaymentOption();
                         paymentOption.IdPaymentOption = dataReader.GetInt32(0);
                         paymentOption.IdCustomer = customer.IdCustomer;
