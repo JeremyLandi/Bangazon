@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Customer.cs" />
     <Compile Include="CustomerProducts.cs" />
+    <Compile Include="MostPopular.cs" />
     <Compile Include="OrderingSystem.cs" />
     <Compile Include="PaymentOption.cs" />
     <Compile Include="Product.cs" />

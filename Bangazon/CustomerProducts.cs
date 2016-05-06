@@ -10,9 +10,9 @@ namespace Bangazon
     public class CustomerProducts
     {
         private List<Product> _productList = new List<Product>();
-
-        public Customer TheCustomer { get; set; }
+        
         public List<Product> Products { get { return _productList; }set { _productList = value; } }
+        public Customer TheCustomer { get; set; }
         public PaymentOption Payment { get; set; }
 
     }

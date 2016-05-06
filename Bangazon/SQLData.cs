@@ -13,7 +13,7 @@ namespace Bangazon
 
         private SqlConnection _sqlConnection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=" +
             "\"C:\\Users\\Jeremy\\Documents\\Visual Studio 2015\\Projects\\ExercisesDotNet\\Invoices\\Invoices\\Invoices.mdf\";Integrated Security=True");
-        
+
         #endregion
 
         #region Properties
@@ -108,6 +108,48 @@ namespace Bangazon
             return paymentOption;
         }
 
+        //DOES'T WORK
+        //public List<MostPopular> GetPopularProducts()
+        //{
+        //    List<MostPopular> mostPopularList = new List<MostPopular>();
+        //    //MostPopular mostPopular = null;
+        //    SqlCommand cmd = new SqlCommand();
+        //    cmd.CommandType = System.Data.CommandType.Text;
+        //    cmd.CommandText =
+        //        //Product name
+        //        "SELECT p.Name" +
+        //        //number of times ordered
+        //        "COUNT(op.IdProduct) AS TimesOrdered" +
+        //        //number of customers
+        //        "COUNT(co.IdCustomer) AS NumberOfCustomers" +
+        //        //total revenue
+        //        "ROUND(SUM(p.Price), 2) AS Total" +
+        //        "FROM OrderProducts AS op" +
+        //        "INNER JOIN CustomerOrder co ON op.IdOrder = co.IdOrder " +
+        //        "INNER JOIN Product p ON op.IdOrderProducts = p.IdOrderProducts " +
+        //        "GROUP BY p.Name" +
+        //        "ORDER BY TimesOrdered DESC";
+        //    cmd.Connection = _sqlConnection;
+
+        //    _sqlConnection.Open();
+        //    using (SqlDataReader dataReader = cmd.ExecuteReader())
+        //    {
+        //        if (dataReader.Read())
+        //        {
+        //            MostPopular mostPopular = new MostPopular();
+        //            mostPopular.name = dataReader.GetString(0);
+        //            mostPopular.timesOrdered = dataReader.GetInt32(1);
+        //            mostPopular.numberOfCustomers = dataReader.GetInt32(2);
+        //            mostPopular.price = dataReader.GetInt32(3);
+
+        //            mostPopularList.Add(mostPopular);
+
+        //        }
+        //    }
+        //    _sqlConnection.Close();
+        //    return mostPopularList;
+        //}
+
         public List<Product> GetProducts()
         {
             List<Product> productList = new List<Product>();
@@ -146,7 +188,7 @@ namespace Bangazon
             //1. Add row to customer order table
             string command = string.Format("INSERT INTO CustomerOrder (OrderNumber, DateCreated, IdCustomer, IdPaymentOption, Shipping)" +
                 "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", orderNumber, now.ToString(), customerProducts.TheCustomer.IdCustomer,
-                customerProducts.Payment.IdCustomer, "UPS");
+                customerProducts.Payment.IdPaymentOption, "UPS");
             UpdateDataBase(command);
 
             //2. get IdOrder from CustomerOrder table
@@ -162,6 +204,8 @@ namespace Bangazon
                 UpdateDataBase(command);
             }
         }
+
+
 
         #endregion
 
