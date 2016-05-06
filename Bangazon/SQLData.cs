@@ -13,7 +13,7 @@ namespace Bangazon
 
         private SqlConnection _sqlConnection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=" +
             "\"C:\\Users\\Jeremy\\Documents\\Visual Studio 2015\\Projects\\ExercisesDotNet\\Invoices\\Invoices\\Invoices.mdf\";Integrated Security=True");
-        
+
         #endregion
 
         #region Properties
@@ -43,6 +43,7 @@ namespace Bangazon
 
             _sqlConnection.Open();
             //using will clean up everything... open and close connections
+            //Read the database. While there is items in database build customer
             using (SqlDataReader dataReader = cmd.ExecuteReader())
             {
                 while (dataReader.Read())
@@ -57,6 +58,7 @@ namespace Bangazon
                     customer.Zipcode = dataReader.GetString(6);
                     customer.PhoneNumber = dataReader.GetString(7);
 
+                    // Add the created customer and adds it to the customerList
                     customerList.Add(customer);
                 }
             }
@@ -78,6 +80,7 @@ namespace Bangazon
 
             SqlCommand cmd = new SqlCommand();
             cmd.CommandType = System.Data.CommandType.Text;
+            //Only access the payment option that matches that customer we have passed in (only getting the first payment option)
             cmd.CommandText = string.Format("SELECT IdPaymentOption, Name, AccountNumber FROM PaymentOption " +
                 "WHERE IdCustomer = '{0}'", customer.IdCustomer);
             cmd.Connection = _sqlConnection;
@@ -89,7 +92,6 @@ namespace Bangazon
                 {
                     if (dataReader.Read())
                     {
-                       
                         paymentOption = new PaymentOption();
                         paymentOption.IdPaymentOption = dataReader.GetInt32(0);
                         paymentOption.IdCustomer = customer.IdCustomer;
@@ -105,6 +107,48 @@ namespace Bangazon
 
             return paymentOption;
         }
+
+        //DOES'T WORK
+        //public List<MostPopular> GetPopularProducts()
+        //{
+        //    List<MostPopular> mostPopularList = new List<MostPopular>();
+        //    //MostPopular mostPopular = null;
+        //    SqlCommand cmd = new SqlCommand();
+        //    cmd.CommandType = System.Data.CommandType.Text;
+        //    cmd.CommandText =
+        //        //Product name
+        //        "SELECT p.Name" +
+        //        //number of times ordered
+        //        "COUNT(op.IdProduct) AS TimesOrdered" +
+        //        //number of customers
+        //        "COUNT(co.IdCustomer) AS NumberOfCustomers" +
+        //        //total revenue
+        //        "ROUND(SUM(p.Price), 2) AS Total" +
+        //        "FROM OrderProducts AS op" +
+        //        "INNER JOIN CustomerOrder co ON op.IdOrder = co.IdOrder " +
+        //        "INNER JOIN Product p ON op.IdOrderProducts = p.IdOrderProducts " +
+        //        "GROUP BY p.Name" +
+        //        "ORDER BY TimesOrdered DESC";
+        //    cmd.Connection = _sqlConnection;
+
+        //    _sqlConnection.Open();
+        //    using (SqlDataReader dataReader = cmd.ExecuteReader())
+        //    {
+        //        if (dataReader.Read())
+        //        {
+        //            MostPopular mostPopular = new MostPopular();
+        //            mostPopular.name = dataReader.GetString(0);
+        //            mostPopular.timesOrdered = dataReader.GetInt32(1);
+        //            mostPopular.numberOfCustomers = dataReader.GetInt32(2);
+        //            mostPopular.price = dataReader.GetInt32(3);
+
+        //            mostPopularList.Add(mostPopular);
+
+        //        }
+        //    }
+        //    _sqlConnection.Close();
+        //    return mostPopularList;
+        //}
 
         public List<Product> GetProducts()
         {
@@ -144,7 +188,7 @@ namespace Bangazon
             //1. Add row to customer order table
             string command = string.Format("INSERT INTO CustomerOrder (OrderNumber, DateCreated, IdCustomer, IdPaymentOption, Shipping)" +
                 "VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", orderNumber, now.ToString(), customerProducts.TheCustomer.IdCustomer,
-                customerProducts.Payment.IdCustomer, "UPS");
+                customerProducts.Payment.IdPaymentOption, "UPS");
             UpdateDataBase(command);
 
             //2. get IdOrder from CustomerOrder table
@@ -160,6 +204,8 @@ namespace Bangazon
                 UpdateDataBase(command);
             }
         }
+
+
 
         #endregion
 
