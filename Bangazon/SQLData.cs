@@ -197,7 +197,7 @@ namespace Bangazon
             int idOrder = GetIdFromTable(command);
 
             //3. add row to OrderProducts table
-            foreach(var product in customerProducts.Products)
+            foreach(var product in customerProducts.ProductsList)
             {
                 command = string.Format("INSERT INTO OrderProducts (IdProduct, IdOrder) " + 
                     "VALUES ('{0}', '{1}')", product.IdProduct, idOrder);
