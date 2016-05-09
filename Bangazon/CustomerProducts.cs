@@ -9,9 +9,7 @@ namespace Bangazon
     // This is a linking class. It links 2 things together - the Customer and the Customer's Products
     public class CustomerProducts
     {
-        private List<Product> _productList = new List<Product>();
-        
-        public List<Product> Products { get { return _productList; }set { _productList = value; } }
+        public List<Product> ProductsList = new List<Product>();
         public Customer TheCustomer { get; set; }
         public PaymentOption Payment { get; set; }
 

@@ -166,7 +166,8 @@ namespace Bangazon
         {
             Console.WriteLine("Which customer?");
             Customer customer = ChooseCustomer();
-            CustomerProducts customerProducts = GetCustomerProducts(customer);
+            //CustomerProducts customerProducts = GetCustomerProducts(customer);
+            CustomerProducts customerProducts = new CustomerProducts();
 
             Product nextProduct = null;
             do
@@ -174,7 +175,7 @@ namespace Bangazon
                 nextProduct = ChooseProduct();
                 if (nextProduct != null)
                 {
-                    customerProducts.Products.Add(nextProduct);
+                    customerProducts.ProductsList.Add(nextProduct);
                 }
             }
             while (nextProduct != null);
@@ -184,7 +185,7 @@ namespace Bangazon
         public void CompleteOrder()
         {
 
-            Console.Write("Which customer?");
+            Console.WriteLine("Which customer?");
             Customer customer = ChooseCustomer();
             CustomerProducts customerProducts = GetCustomerProducts(customer);
 
@@ -207,7 +208,7 @@ namespace Bangazon
                 //}
                 //}
                 Console.Clear();
-                Console.WriteLine(string.Format("The total is ${0}.", customerProducts.Products.Sum(x => x.Price)));
+                Console.WriteLine(string.Format("The total is ${0}.", customerProducts.ProductsList.Sum(x => x.Price)));
                 //decimal finalPrice = 0;
                 //foreach (Product product in customerProducts.Products)
                 //{
@@ -296,29 +297,70 @@ namespace Bangazon
             System.Environment.Exit(0);
         }
 
-        private CustomerProducts GetCustomerProducts(Customer customer)
+        private SqlConnection _sqlConnection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=" +
+          "\"C:\\Users\\Jeremy\\Documents\\Visual Studio 2015\\Projects\\ExercisesDotNet\\Invoices\\Invoices\\Invoices.mdf\";Integrated Security=True");
+
+        public CustomerProducts GetCustomerProducts(Customer customer)
         {
-            CustomerProducts customerProducts = null;
-            foreach (CustomerProducts cProds in _customerProducts)
+            CustomerProducts customerProducts = new CustomerProducts();
+
+            SqlCommand cmd = new SqlCommand();
+            cmd.CommandType = System.Data.CommandType.Text;
+            cmd.CommandText = string.Format(@"
+            SELECT
+            p.Name Product,
+            p.Price Price,
+            c.FirstName + ' ' + c.LastName AS FullName
+            FROM Product p 
+            INNER JOIN OrderProducts op 
+              ON p.IdProduct = op.IdProduct 
+            INNER JOIN CustomerOrder co
+              ON op.IdOrder = co.IdOrder 
+            INNER JOIN Customer c
+              ON co.IdCustomer = c.IdCustomer
+            WHERE c.IdCustomer = '{0}'", customer.IdCustomer);
+            cmd.Connection = _sqlConnection;
+
+            _sqlConnection.Open();
+
+            //using will clean up everything... open and close connections
+            using (SqlDataReader dataReader = cmd.ExecuteReader())
             {
-                if (cProds.TheCustomer.FirstName == customer.FirstName &&
-                    cProds.TheCustomer.LastName == customer.LastName)
+                while (dataReader.Read())
                 {
-                    customerProducts = cProds;
+                    Product product = new Product();
+                    product.Name = dataReader.GetString(0);
+                    product.Price = dataReader.GetDecimal(1);
+
+                    customerProducts.ProductsList.Add(product);
                 }
-                if (customerProducts.Payment == null)
-                {
-                    customerProducts.Payment = _sqlData.GetPaymentOptionForCustomer(customer);
-                }
-            }
-            if (customerProducts == null)
-            {
-                customerProducts = new CustomerProducts();
-                customerProducts.TheCustomer = customer;
-                _customerProducts.Add(customerProducts);
             }
 
+            _sqlConnection.Close();
+
             return customerProducts;
+
+
+
+            //foreach (CustomerProducts cProds in _customerProducts)
+            //{
+            //    if (cProds.TheCustomer.FirstName == customer.FirstName &&
+            //        cProds.TheCustomer.LastName == customer.LastName)
+            //    {
+            //        customerProducts = cProds;
+            //    }
+            //    if (customerProducts.Payment == null)
+            //    {
+            //        customerProducts.Payment = _sqlData.GetPaymentOptionForCustomer(customer);
+            //    }
+            //}
+            //if (customerProducts == null)
+            //{
+            //    customerProducts = new CustomerProducts();
+            //    customerProducts.TheCustomer = customer;
+            //    _customerProducts.Add(customerProducts);
+            //}
+
         }
     }
 }
